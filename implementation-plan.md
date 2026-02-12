@@ -3805,15 +3805,22 @@ git push origin main
 Tomorrow we'll build the admin dashboard and course management interface!
 
 ### 🎯 Development Day 6: Admin Dashboard & Course Management
+
 Goal: Build admin dashboard with statistics and create course management interface.
 Estimated Time: 5-6 hours
 
 #### Day 6, Step 1: Create Admin Dashboard Layout
-Time: 20 minutes
-What you're doing: Creating a shared layout for all admin pages with navigation.
-Create: app/admin/layout.tsx
-Pseudocode:
-typescriptimport { createClient } from '@/lib/supabase-server'
+
+**Time**: 20 minutes
+
+**What you're doing**: Creating a shared layout for all admin pages with navigation.
+
+**Create**: `app/admin/layout.tsx`
+
+**Pseudocode**:
+
+````typescript
+import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { LayoutDashboard, BookOpen, Languages, LogOut, Home } from 'lucide-react'
@@ -3826,7 +3833,7 @@ export default async function AdminLayout({
   // Verify user is authenticated and is admin
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
-  
+
   if (!session) {
     redirect('/admin/login')
   }
@@ -3858,7 +3865,7 @@ export default async function AdminLayout({
               <h1 className="text-xl font-heading font-bold text-primary-600">
                 Admin Panel
               </h1>
-              
+
               {/* Navigation */}
               <nav className="hidden md:flex items-center gap-1">
                 {navItems.map(item => (
@@ -3891,7 +3898,7 @@ export default async function AdminLayout({
 
               {/* Logout Form */}
               <form action="/api/auth/signout" method="POST">
-                <button 
+                <button
                   type="submit"
                   className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 transition"
                 >
@@ -3936,11 +3943,17 @@ Create app/admin/layout.tsx as a server component:
    - White header with border
    - Clean, professional admin interface
 
+
 Use TypeScript.
 This is a server component (no 'use client').
-Create: app/api/auth/signout/route.ts
-Pseudocode:
-typescriptimport { createClient } from '@/lib/supabase-server'
+
+#### Day 6, Step 2: Create Sign Out API Route
+
+**Create**: `app/api/auth/signout/route.ts`
+
+**Pseudocode**:
+```typescript
+import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 
 export async function POST() {
@@ -3948,8 +3961,10 @@ export async function POST() {
   await supabase.auth.signOut()
   return NextResponse.redirect(new URL('/admin/login', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
 }
-AI Prompt for Copilot:
-Create app/api/auth/signout/route.ts:
+````
+
+**AI Prompt for Copilot**:
+Create `app/api/auth/signout/route.ts`:
 
 1. Import createClient and NextResponse
 2. Export async POST function
@@ -3958,20 +3973,25 @@ Create app/api/auth/signout/route.ts:
 5. Redirect to /admin/login
 
 Simple and straightforward.
-✅ Verification:
 
-Admin layout wraps all admin pages
-Navigation shows on all admin pages
-Logout button works
+**✅ Verification**:
 
+- Admin layout wraps all admin pages
+- Navigation shows on all admin pages
+- Logout button works
 
+#### Day 6, Step 3: Create Admin Dashboard Page
 
-Day 6, Step 2: Create Admin Dashboard Page
-Time: 40 minutes
-What you're doing: Building the main admin dashboard with statistics and quick actions.
-Create: app/admin/dashboard/page.tsx
-Pseudocode:
-typescriptimport { createClient } from '@/lib/supabase-server'
+**Time**: 40 minutes
+
+**What you're doing**: Building the main admin dashboard with statistics and quick actions.
+
+**Create**: `app/admin/dashboard/page.tsx`
+
+**Pseudocode**:
+
+````typescript
+import { createClient } from '@/lib/supabase-server'
 import Link from 'next/link'
 import { BookOpen, FileText, Languages, Plus, ArrowRight } from 'lucide-react'
 
@@ -4185,8 +4205,8 @@ export default async function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    course.is_published 
-                      ? 'bg-green-100 text-green-700' 
+                    course.is_published
+                      ? 'bg-green-100 text-green-700'
                       : 'bg-yellow-100 text-yellow-700'
                   }`}>
                     {course.is_published ? 'Published' : 'Draft'}
@@ -4242,21 +4262,29 @@ Create app/admin/dashboard/page.tsx as a server component:
 
 Use TypeScript.
 Server component (no 'use client').
-✅ Verification:
-bashnpm run dev
 
-Login to admin
-Should redirect to /admin/dashboard
-Statistics should display correctly
-All links should work
+**✅ Verification**:
+```bash
+npm run dev
+````
 
+- Login to admin
+- Should redirect to /admin/dashboard
+- Statistics should display correctly
+- All links should work
 
-Day 6, Step 3: Create Course Management Page
-Time: 60 minutes
-What you're doing: Building the course management interface with list, add, edit, delete functionality.
-Create: app/admin/courses/page.tsx
-Pseudocode:
-typescript'use client'
+#### Day 6, Step 4: Create Course Management Page
+
+**Time**: 60 minutes
+
+**What you're doing**: Building the course management interface with list, add, edit, delete functionality.
+
+**Create**: `app/admin/courses/page.tsx`
+
+**Pseudocode**:
+
+```typescript
+'use client'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -4489,8 +4517,10 @@ export default function AdminCoursesPage() {
     </div>
   )
 }
-AI Prompt for Copilot:
-Create app/admin/courses/page.tsx as a client component:
+```
+
+**AI Prompt for Copilot**:
+Create `app/admin/courses/page.tsx` as a client component:
 
 1. Import: useState, useEffect, supabase, toast, icons, Course type, CourseForm component
 2. Component state:
@@ -4515,12 +4545,18 @@ Create app/admin/courses/page.tsx as a client component:
 Use 'use client' directive.
 Use TypeScript.
 
-Day 6, Step 4: Create Course Form Component
-Time: 70 minutes
-What you're doing: Building a comprehensive form for adding and editing courses.
-Create: src/components/admin/CourseForm.tsx
-Pseudocode:
-typescript'use client'
+#### Day 6, Step 5: Create Course Form Component
+
+**Time**: 70 minutes
+
+**What you're doing**: Building a comprehensive form for adding and editing courses.
+
+**Create**: `src/components/admin/CourseForm.tsx`
+
+**Pseudocode**:
+
+````typescript
+'use client'
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -4621,7 +4657,7 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-heading font-bold text-gray-900">
@@ -4637,11 +4673,11 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          
+
           {/* Basic Info */}
           <div className="space-y-4">
             <h3 className="font-semibold text-gray-900">Basic Information</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -4988,31 +5024,44 @@ Create src/components/admin/CourseForm.tsx as a comprehensive course form:
 Use 'use client' directive.
 Use TypeScript with proper types.
 ✅ Verification:
-
 Add new course works
 Edit existing course works
 Array fields can be added/removed
 Form validates required fields
 Success/error toasts appear
 
+#### Day 6, Step 6: Commit Day 6 Progress
 
-Day 6, Step 5: Commit Day 6 Progress
-Time: 5 minutes
-bashgit add .
+**Time**: 5 minutes
+
+```bash
+git add .
 git commit -m "Day 6: Build admin dashboard and complete course management with CRUD"
 git push origin main
-✅ Day 6 Complete!
+````
 
-🎯 Development Day 7: Translation Management
-Goal: Build translation management interface with CRUD operations.
-Estimated Time: 3-4 hours
+**✅ Day 6 Complete!**
 
-Day 7, Step 1: Create Translations API Route
-Time: 25 minutes
-What you're doing: Building API endpoints for translation CRUD operations.
-Create: app/api/translations/route.ts
-Pseudocode:
-typescriptimport { createClient } from '@/lib/supabase-server'
+---
+
+### 🎯 Development Day 7: Translation Management
+
+**Goal**: Build translation management interface with CRUD operations.
+
+**Estimated Time**: 3-4 hours
+
+#### Day 7, Step 1: Create Translations API Route
+
+**Time**: 25 minutes
+
+**What you're doing**: Building API endpoints for translation CRUD operations.
+
+**Create**: `app/api/translations/route.ts`
+
+**Pseudocode**:
+
+````typescript
+import { createClient } from '@/lib/supabase-server'
 import { NextResponse } from 'next/server'
 
 // GET /api/translations
@@ -5023,7 +5072,7 @@ export async function GET(request: Request) {
     const missingOnly = searchParams.get('missingOnly') === 'true'
 
     const supabase = createClient()
-    
+
     let query = supabase
       .from('translations')
       .select('*')
@@ -5164,12 +5213,17 @@ Create app/api/translations/route.ts with handlers for translation CRUD:
 Use TypeScript.
 Include error handling for all routes.
 
-Day 7, Step 2: Create Translation Management Page
-Time: 60 minutes
-What you're doing: Building the UI for managing translations.
-Create: app/admin/translations/page.tsx
-Pseudocode:
-typescript'use client'
+#### Day 7, Step 2: Create Translation Management Page
+
+**Time**: 60 minutes
+
+**What you're doing**: Building the UI for managing translations.
+
+**Create**: `app/admin/translations/page.tsx`
+
+**Pseudocode**:
+```typescript
+'use client'
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -5339,8 +5393,8 @@ export default function AdminTranslationsPage() {
       ) : filteredTranslations.length === 0 ? (
         <div className="bg-white rounded-xl p-12 text-center">
           <p className="text-gray-600">
-            {searchTerm 
-              ? 'No translations found matching your search.' 
+            {searchTerm
+              ? 'No translations found matching your search.'
               : 'No translations yet. Add your first translation!'
             }
           </p>
@@ -5479,13 +5533,17 @@ Filters work (category, missing only)
 Search filters results
 Delete works
 
+#### Day 7, Step 3: Create Translation Form Component
 
-Day 7, Step 3: Create Translation Form Component
-Time: 40 minutes
-What you're doing: Building a form for adding/editing translations.
-Create: src/components/admin/TranslationForm.tsx
-Pseudocode:
-typescript'use client'
+**Time**: 40 minutes
+
+**What you're doing**: Building a form for adding/editing translations.
+
+**Create**: `src/components/admin/TranslationForm.tsx`
+
+**Pseudocode**:
+```typescript
+'use client'
 
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -5560,7 +5618,7 @@ export function TranslationForm({ translation, onClose, onSuccess }: Translation
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-2xl w-full">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-2xl font-heading font-bold text-gray-900">
@@ -5703,19 +5761,22 @@ typescriptimport { TranslationForm } from '@/components/admin/TranslationForm'
   />
 )}
 ✅ Verification:
+- Add new translation works
+- Edit existing translation works
+- Key field is disabled when editing
+- Form validates required fields
 
-Add new translation works
-Edit existing translation works
-Key field is disabled when editing
-Form validates required fields
+#### Day 7, Step 4: Seed Initial Translations
 
+**Time**: 20 minutes
 
-Day 7, Step 4: Seed Initial Translations
-Time: 20 minutes
-What you're doing: Creating a script to populate common UI translations.
-Create: scripts/seedTranslations.ts
-Pseudocode:
-typescriptimport { createClient } from '@supabase/supabase-js'
+**What you're doing**: Creating a script to populate common UI translations.
+
+**Create**: `scripts/seedTranslations.ts`
+
+**Pseudocode**:
+```typescript
+import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -5769,7 +5830,7 @@ async function seedTranslations() {
 
     // Insert translations
     console.log(`📝 Inserting ${translations.length} translations...`)
-    
+
     const { data, error } = await supabase
       .from('translations')
       .insert(translations)
@@ -5790,18 +5851,27 @@ async function seedTranslations() {
 }
 
 seedTranslations()
-Update package.json scripts:
-json{
+```
+
+**Update**: `package.json` scripts:
+
+```json
+{
   "scripts": {
     "seed": "tsx scripts/seedCourses.ts",
     "seed:translations": "tsx scripts/seedTranslations.ts",
     "seed:all": "npm run seed && npm run seed:translations"
   }
 }
-Run:
-bashnpm run seed:translations
-AI Prompt for Copilot:
-Create scripts/seedTranslations.ts:
+```
+
+**Run**:
+```bash
+npm run seed:translations
+```
+
+**AI Prompt for Copilot**:
+Create `scripts/seedTranslations.ts`:
 
 1. Import createClient from @supabase/supabase-js
 2. Get environment variables for Supabase
@@ -5819,36 +5889,43 @@ Create scripts/seedTranslations.ts:
 
 Use TypeScript.
 Add console.log messages with emojis.
-✅ Verification:
 
-Script runs successfully
-Check /admin/translations - should see seeded translations
+**✅ Verification**:
+- Script runs successfully
+- Check /admin/translations - should see seeded translations
 
+#### Day 7, Step 5: Commit Day 7 Progress
 
-Day 7, Step 5: Commit Day 7 Progress
-Time: 5 minutes
-bashgit add .
+**Time**: 5 minutes
+
+```bash
+git add .
 git commit -m "Day 7: Build translation management with CRUD and seed initial translations"
 git push origin main
-✅ Day 7 Complete!
+```
 
-🎉 Days 6 & 7 Summary
+**✅ Day 7 Complete!**
+
+---
+
+## 🎉 Days 6 & 7 Summary
+
 You've now completed:
-Day 6:
 
-✅ Admin layout with navigation
-✅ Dashboard with statistics
-✅ Complete course management (list, add, edit, delete)
-✅ Comprehensive course form with dynamic arrays
+**Day 6**:
+- ✅ Admin layout with navigation
+- ✅ Dashboard with statistics
+- ✅ Complete course management (list, add, edit, delete)
+- ✅ Comprehensive course form with dynamic arrays
 
-Day 7:
-
-✅ Translation API routes
-✅ Translation management interface
-✅ Translation form component
-✅ Seed script for initial translations
+**Day 7**:
+- ✅ Translation API routes
+- ✅ Translation management interface
+- ✅ Translation form component
+- ✅ Seed script for initial translations
 
 Still needed (Days 8-9):
 
 Day 8: Testing, polish, bug fixes
 Day 9: Deployment to Vercel
+````
