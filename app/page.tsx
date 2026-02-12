@@ -1,12 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AnimatedHero } from "@/components/AnimatedHero";
+import { CourseCard } from "@/components/CourseCard";
 import { Button } from "@/components/ui";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 import { motion } from "framer-motion";
 import { fadeIn } from "@/lib/animations";
 import Link from "next/link";
+import type { Course } from "@/types";
 import {
   GraduationCap,
   Users,
@@ -70,6 +73,27 @@ const benefits = [
 
 export default function Home() {
   const { language, t } = useLanguage();
+  const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+  const [loadingCourses, setLoadingCourses] = useState(true);
+
+  // Fetch featured courses on mount
+  useEffect(() => {
+    async function fetchFeaturedCourses() {
+      try {
+        const response = await fetch("/api/courses");
+        const data = await response.json();
+        if (response.ok) {
+          // Get first 6 courses for featured section
+          setFeaturedCourses(data.courses.slice(0, 6));
+        }
+      } catch (error) {
+        console.error("Error fetching featured courses:", error);
+      } finally {
+        setLoadingCourses(false);
+      }
+    }
+    fetchFeaturedCourses();
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -235,6 +259,45 @@ export default function Home() {
               </div>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Featured Programs Section */}
+      <section className="py-16 md:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              {language === "en" ? "Featured Programs" : "精选课程"}
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              {language === "en"
+                ? "Explore our most popular one-year career training programs designed to help you enter the Canadian workforce"
+                : "探索我们最受欢迎的一年制职业培训课程，帮助您进入加拿大职场"}
+            </p>
+          </div>
+
+          {loadingCourses ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {featuredCourses.map((course) => (
+                  <CourseCard key={course.id} course={course} />
+                ))}
+              </div>
+
+              <div className="text-center">
+                <Link href="/courses">
+                  <Button size="lg">
+                    {language === "en" ? "View All Programs" : "查看所有课程"}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
