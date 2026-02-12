@@ -3804,11 +3804,11 @@ git push origin main
 
 Tomorrow we'll build the admin dashboard and course management interface!
 
-🎯 Development Day 6: Admin Dashboard & Course Management
+### 🎯 Development Day 6: Admin Dashboard & Course Management
 Goal: Build admin dashboard with statistics and create course management interface.
 Estimated Time: 5-6 hours
 
-Day 6, Step 1: Create Admin Dashboard Layout
+#### Day 6, Step 1: Create Admin Dashboard Layout
 Time: 20 minutes
 What you're doing: Creating a shared layout for all admin pages with navigation.
 Create: app/admin/layout.tsx
