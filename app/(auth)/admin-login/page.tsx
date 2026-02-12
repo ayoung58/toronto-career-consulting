@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LogIn, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { loginAction } from "./actions";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -20,35 +18,19 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      // Sign in with Supabase Auth
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      const result = await loginAction(formData.email, formData.password);
 
-      if (error) throw error;
-
-      // Check if user is admin
-      const { data: adminCheck, error: adminError } = await supabase
-        .from("admin_roles")
-        .select("*")
-        .eq("user_id", data.user.id)
-        .single();
-
-      if (adminError || !adminCheck) {
-        // Not an admin - sign them out
-        await supabase.auth.signOut();
-        throw new Error("You are not authorized as an admin");
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
+      // Success - the server action will handle the redirect
       toast.success("Login successful! Redirecting...");
-      router.push("/admin/dashboard");
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error(
         error.message || "Login failed. Please check your credentials.",
       );
-    } finally {
       setLoading(false);
     }
   };

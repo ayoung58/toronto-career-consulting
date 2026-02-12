@@ -54,22 +54,24 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // Check auth for /admin routes (except /admin/login)
-  if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login")
-  ) {
+  // Refresh session if exists
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Check auth for /admin routes
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     const {
       data: { session },
     } = await supabase.auth.getSession();
 
     // No session - redirect to login
     if (!session) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/admin-login", request.url));
     }
 
     // Check if user is admin
-    const { data: adminCheck } = await supabase
+    const { data: adminCheck, error: adminError } = await supabase
       .from("admin_roles")
       .select("*")
       .eq("user_id", session.user.id)
@@ -78,7 +80,7 @@ export async function middleware(request: NextRequest) {
     // Not an admin - sign out and redirect to login
     if (!adminCheck) {
       await supabase.auth.signOut();
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+      return NextResponse.redirect(new URL("/admin-login", request.url));
     }
   }
 
@@ -86,5 +88,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/admin/:path*",
+  matcher: ["/admin/:path*"],
 };

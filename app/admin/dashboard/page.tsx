@@ -1,126 +1,246 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
-import { LogOut, BookOpen } from "lucide-react";
+import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import { BookOpen, FileText, Languages, Plus, ArrowRight } from "lucide-react";
 
-export default function AdminDashboardPage() {
-  const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string>("");
+export default async function AdminDashboardPage() {
+  const supabase = await createClient();
 
-  useEffect(() => {
-    async function getUser() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUserEmail(session.user.email || "");
-      }
-    }
-    getUser();
-  }, []);
+  // Fetch statistics
+  const [
+    { count: totalCourses },
+    { count: publishedCourses },
+    { count: draftCourses },
+    { count: totalTranslations },
+    { count: missingTranslations },
+    { data: recentCourses },
+  ] = await Promise.all([
+    supabase.from("courses").select("*", { count: "exact", head: true }),
+    supabase
+      .from("courses")
+      .select("*", { count: "exact", head: true })
+      .eq("is_published", true),
+    supabase
+      .from("courses")
+      .select("*", { count: "exact", head: true })
+      .eq("is_published", false),
+    supabase.from("translations").select("*", { count: "exact", head: true }),
+    supabase
+      .from("translations")
+      .select("*", { count: "exact", head: true })
+      .is("value_zh", null),
+    supabase
+      .from("courses")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success("Signed out successfully");
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast.error("Failed to sign out");
-    }
-  };
+  const stats = [
+    {
+      label: "Total Courses",
+      value: totalCourses || 0,
+      icon: BookOpen,
+      color: "bg-blue-100 text-blue-600",
+      href: "/admin/courses",
+    },
+    {
+      label: "Published",
+      value: publishedCourses || 0,
+      icon: FileText,
+      color: "bg-green-100 text-green-600",
+      href: "/admin/courses",
+    },
+    {
+      label: "Drafts",
+      value: draftCourses || 0,
+      icon: FileText,
+      color: "bg-yellow-100 text-yellow-600",
+      href: "/admin/courses",
+    },
+    {
+      label: "Translations",
+      value: totalTranslations || 0,
+      icon: Languages,
+      color: "bg-purple-100 text-purple-600",
+      href: "/admin/translations",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-white" />
+    <div className="space-y-8">
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-heading font-bold text-gray-900 mb-2">
+          Dashboard
+        </h1>
+        <p className="text-gray-600">
+          Welcome back! Here's an overview of your content.
+        </p>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <Link
+            key={index}
+            href={stat.href}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div
+                className={`w-12 h-12 rounded-lg ${stat.color} flex items-center justify-center`}
+              >
+                <stat.icon className="h-6 w-6" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  Admin Dashboard
-                </h1>
-                <p className="text-sm text-gray-600">{userEmail}</p>
-              </div>
+              <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-primary-600 transition" />
             </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </button>
+            <div className="text-3xl font-bold text-gray-900 mb-1">
+              {stat.value}
+            </div>
+            <div className="text-sm text-gray-600">{stat.label}</div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Alert for Missing Translations */}
+      {missingTranslations && missingTranslations > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <Languages className="h-5 w-5 text-yellow-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-yellow-900 mb-1">
+                Missing Translations
+              </h3>
+              <p className="text-sm text-yellow-800 mb-3">
+                You have {missingTranslations} translation
+                {missingTranslations !== 1 ? "s" : ""} without Chinese values.
+              </p>
+              <Link
+                href="/admin/translations"
+                className="inline-flex items-center gap-1 text-sm font-medium text-yellow-900 hover:text-yellow-700"
+              >
+                Manage Translations
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
-      </header>
+      )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome to the Admin Dashboard
-          </h2>
-          <p className="text-gray-600 mb-6">
-            This is a placeholder dashboard page. Full admin functionality will
-            be implemented in future development phases.
-          </p>
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl p-6 shadow-sm">
+        <h2 className="text-xl font-heading font-bold text-gray-900 mb-4">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link
+            href="/admin/courses"
+            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition group"
+          >
+            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition">
+              <Plus className="h-6 w-6 text-primary-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">
+                Add New Course
+              </h3>
+              <p className="text-sm text-gray-600">
+                Create a new training program
+              </p>
+            </div>
+          </Link>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-primary-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-2">
+          <Link
+            href="/admin/courses"
+            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition group"
+          >
+            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition">
+              <BookOpen className="h-6 w-6 text-primary-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">
                 Manage Courses
               </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Create, edit, and manage course listings
+              <p className="text-sm text-gray-600">
+                Edit or delete existing courses
               </p>
-              <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                Coming soon →
-              </button>
             </div>
+          </Link>
 
-            <div className="bg-indigo-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                View Messages
+          <Link
+            href="/admin/translations"
+            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition group"
+          >
+            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition">
+              <Languages className="h-6 w-6 text-primary-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">
+                Manage Translations
               </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                See contact form submissions
+              <p className="text-sm text-gray-600">
+                Update Chinese translations
               </p>
-              <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                Coming soon →
-              </button>
             </div>
+          </Link>
 
-            <div className="bg-purple-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Manage Content
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                Update translations and site content
-              </p>
-              <button className="text-purple-600 hover:text-purple-700 font-medium text-sm">
-                Coming soon →
-              </button>
+          <Link
+            href="/"
+            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition group"
+          >
+            <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition">
+              <ArrowRight className="h-6 w-6 text-primary-600" />
             </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium"
-            >
-              ← Back to Website
-            </Link>
-          </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">View Website</h3>
+              <p className="text-sm text-gray-600">See your live site</p>
+            </div>
+          </Link>
         </div>
-      </main>
+      </div>
+
+      {/* Recent Courses */}
+      <div className="bg-white rounded-xl p-6 shadow-sm">
+        <h2 className="text-xl font-heading font-bold text-gray-900 mb-4">
+          Recent Courses
+        </h2>
+        {recentCourses && recentCourses.length > 0 ? (
+          <div className="space-y-3">
+            {recentCourses.map((course: any) => (
+              <Link
+                key={course.id}
+                href={`/admin/courses`}
+                className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-gray-50 transition"
+              >
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">
+                    {course.title_en}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {course.category || "Uncategorized"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      course.is_published
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {course.is_published ? "Published" : "Draft"}
+                  </span>
+                  <ArrowRight className="h-5 w-5 text-gray-400" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600 text-center py-8">
+            No courses yet. Create your first course!
+          </p>
+        )}
+      </div>
     </div>
   );
 }

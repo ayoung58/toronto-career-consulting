@@ -17,10 +17,10 @@ const footerLinks: FooterLink[] = [
 ];
 
 const programCategories = [
-  { label_en: "Business", label_zh: "商业" },
-  { label_en: "Healthcare", label_zh: "医疗保健" },
-  { label_en: "Technology", label_zh: "技术" },
-  { label_en: "Social Services", label_zh: "社会服务" },
+  { value: "business", label_en: "Business", label_zh: "商业" },
+  { value: "healthcare", label_en: "Healthcare", label_zh: "医疗保健" },
+  { value: "technology", label_en: "Technology", label_zh: "技术" },
+  { value: "trades", label_en: "Social Services", label_zh: "社会服务" },
 ];
 
 /**
@@ -81,9 +81,9 @@ export function Footer() {
             </h4>
             <ul className="space-y-3">
               {programCategories.map((category) => (
-                <li key={category.label_en}>
+                <li key={category.value}>
                   <Link
-                    href={`/courses?category=${category.label_en.toLowerCase()}`}
+                    href={`/courses?category=${category.value}`}
                     className="text-sm text-gray-600 hover:text-primary-600 transition-colors"
                   >
                     {language === "en" ? category.label_en : category.label_zh}
@@ -127,7 +127,7 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-4">
               <Link
-                href="/admin/login"
+                href="/admin-login"
                 className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {language === "en" ? "Admin" : "管理员"}

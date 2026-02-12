@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { CourseCard } from "@/components/CourseCard";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Course } from "@/types";
@@ -8,6 +9,7 @@ import { Search, Filter } from "lucide-react";
 
 export default function CoursesPage() {
   const { language } = useLanguage();
+  const searchParams = useSearchParams();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,6 +23,26 @@ export default function CoursesPage() {
     { value: "technology", label_en: "Technology", label_zh: "技术" },
     { value: "trades", label_en: "Trades & Services", label_zh: "技能与服务" },
   ];
+
+  // Initialize category from URL on mount
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      // Map "social services" to "trades" for backward compatibility
+      const mappedCategory =
+        categoryParam.toLowerCase() === "social services"
+          ? "trades"
+          : categoryParam.toLowerCase();
+
+      // Check if it's a valid category
+      const validCategory = categories.find(
+        (cat) => cat.value === mappedCategory,
+      );
+      if (validCategory) {
+        setSelectedCategory(mappedCategory);
+      }
+    }
+  }, [searchParams]);
 
   // Fetch courses when filters change
   useEffect(() => {

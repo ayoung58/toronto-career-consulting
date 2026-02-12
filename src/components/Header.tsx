@@ -97,7 +97,7 @@ export function Header() {
 
             {/* Admin Link (subtle) */}
             <Link
-              href="/admin/login"
+              href="/admin-login"
               className="text-xs text-gray-400 hover:text-gray-600 transition-colors ml-2"
             >
               {language === "en" ? "Admin" : "管理"}
@@ -168,7 +168,7 @@ export function Header() {
                   transition={{ delay: navItems.length * 0.05 }}
                 >
                   <Link
-                    href="/admin/login"
+                    href="/admin-login"
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
                       "block px-4 py-3 rounded-lg",
