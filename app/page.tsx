@@ -1,26 +1,21 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { AnimatedHero } from "@/components/AnimatedHero";
 import { Button } from "@/components/ui";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui";
 import { motion } from "framer-motion";
-import { fadeIn, staggerContainer } from "@/lib/animations";
+import { fadeIn } from "@/lib/animations";
 import Link from "next/link";
 import {
   GraduationCap,
   Users,
-  Award,
   ArrowRight,
   CheckCircle,
   Briefcase,
   BookOpen,
   DollarSign,
+  Award,
 } from "lucide-react";
 
 const categories = [
@@ -79,74 +74,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/2 translate-y-1/2" />
-        </div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-            className="text-center space-y-8"
-          >
-            <motion.h1
-              variants={fadeIn}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
-            >
-              {language === "en" ? (
-                <>
-                  Transform Your Career
-                  <br />
-                  <span className="text-primary-200">Start Today</span>
-                </>
-              ) : (
-                <>
-                  转变您的职业生涯
-                  <br />
-                  <span className="text-primary-200">今天开始</span>
-                </>
-              )}
-            </motion.h1>
-
-            <motion.p
-              variants={fadeIn}
-              className="max-w-2xl mx-auto text-lg md:text-xl text-primary-100"
-            >
-              {language === "en"
-                ? "Access government-funded career programs in Toronto. One-year diplomas with job placement support. Bilingual services available."
-                : "在多伦多获得政府资助的职业培训课程。一年制文凭课程，提供就业安置支持。提供双语服务。"}
-            </motion.p>
-
-            <motion.div
-              variants={fadeIn}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Link href="/courses">
-                <Button
-                  size="lg"
-                  className="bg-white text-primary-700 hover:bg-primary-50 shadow-lg"
-                >
-                  {t("nav.courses")}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white bg-transparent text-white hover:bg-white/10"
-                >
-                  {t("nav.contact")}
-                </Button>
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <AnimatedHero />
 
       {/* Program Categories */}
       <section className="py-16 md:py-24 bg-gray-50">
