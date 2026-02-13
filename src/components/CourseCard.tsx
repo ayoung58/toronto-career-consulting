@@ -4,7 +4,13 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Course } from "@/types";
 import Link from "next/link";
-import { ArrowRight, DollarSign, Briefcase } from "lucide-react";
+import Image from "next/image";
+import {
+  ArrowRight,
+  DollarSign,
+  Briefcase,
+  Image as ImageIcon,
+} from "lucide-react";
 
 interface CourseCardProps {
   course: Course;
@@ -47,24 +53,41 @@ export function CourseCard({ course }: CourseCardProps) {
     <motion.div
       whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
       transition={{ duration: 0.2 }}
-      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full"
+      className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full group"
     >
-      {/* Category Badge */}
-      {course.category && (
-        <div className="px-6 pt-6">
-          <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-700">
-            {formatCategory(course.category)}
-          </span>
-        </div>
-      )}
+      {/* Course Image */}
+      <div className="relative w-full aspect-video bg-gradient-to-br from-gray-100 to-gray-200">
+        {course.image_url ? (
+          <Image
+            src={course.image_url}
+            alt={title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          // Placeholder when no image
+          <div className="w-full h-full flex items-center justify-center">
+            <ImageIcon className="h-16 w-16 text-gray-300" />
+          </div>
+        )}
+      </div>
 
-      <div className="px-6 py-4 flex-1 flex flex-col">
+      {/* Content */}
+      <div className="p-6 flex-1 flex flex-col">
+        {/* Category Badge */}
+        {course.category && (
+          <div className="mb-4">
+            <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-700">
+              {formatCategory(course.category)}
+            </span>
+          </div>
+        )}
+
         {/* Course Title */}
-        <Link href={`/courses/${course.slug}`}>
-          <h3 className="text-xl font-bold text-gray-900 hover:text-primary-600 transition-colors mb-3 line-clamp-2">
-            {title}
-          </h3>
-        </Link>
+        <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+          {title}
+        </h3>
 
         {/* Description (truncated) */}
         <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
@@ -73,7 +96,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
         {/* Salary Range */}
         {course.salary_range && (
-          <div className="flex items-center gap-2 text-green-600 text-sm mb-4">
+          <div className="flex items-center gap-2 text-green-600 text-sm mb-5">
             <DollarSign className="w-4 h-4" />
             <span className="font-semibold">{course.salary_range}</span>
           </div>
@@ -81,13 +104,13 @@ export function CourseCard({ course }: CourseCardProps) {
 
         {/* Career Pathways */}
         {careerPathways && careerPathways.length > 0 && (
-          <div className="mb-4">
+          <div>
             <div className="flex items-center gap-2 text-gray-700 text-sm font-medium mb-2">
               <Briefcase className="w-4 h-4" />
               {language === "en" ? "Career Paths:" : "职业方向："}
             </div>
             <div className="flex flex-wrap gap-2">
-              {careerPathways.slice(0, 3).map((path, i) => (
+              {careerPathways.slice(0, 2).map((path, i) => (
                 <span
                   key={i}
                   className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded"
@@ -95,23 +118,14 @@ export function CourseCard({ course }: CourseCardProps) {
                   {path}
                 </span>
               ))}
-              {careerPathways.length > 3 && (
+              {careerPathways.length > 2 && (
                 <span className="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
-                  +{careerPathways.length - 3}
+                  +{careerPathways.length - 2}
                 </span>
               )}
             </div>
           </div>
         )}
-
-        {/* Learn More Link */}
-        <Link
-          href={`/courses/${course.slug}`}
-          className="group mt-auto inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium transition-colors"
-        >
-          {language === "en" ? "Learn More" : "了解更多"}
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
       </div>
     </motion.div>
   );

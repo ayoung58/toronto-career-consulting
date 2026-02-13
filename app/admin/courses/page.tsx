@@ -25,7 +25,7 @@ export default function AdminCoursesPage() {
       const { data, error } = await supabase
         .from("courses")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("title_en", { ascending: true });
 
       if (error) throw error;
       setCourses(data || []);

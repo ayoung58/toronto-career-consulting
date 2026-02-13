@@ -14,6 +14,7 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("alphabetical");
 
   // Categories for filtering
   const categories = [
@@ -22,6 +23,35 @@ export default function CoursesPage() {
     { value: "healthcare", label_en: "Healthcare", label_zh: "医疗" },
     { value: "technology", label_en: "Technology", label_zh: "技术" },
     { value: "trades", label_en: "Trades & Services", label_zh: "技能与服务" },
+  ];
+
+  // Sort options
+  const sortOptions = [
+    {
+      value: "alphabetical",
+      label_en: "Alphabetical (A-Z)",
+      label_zh: "按字母排序 (A-Z)",
+    },
+    {
+      value: "starting_salary_low",
+      label_en: "Low to High (starting salary)",
+      label_zh: "低到高 (起薪)",
+    },
+    {
+      value: "starting_salary_high",
+      label_en: "High to Low (starting salary)",
+      label_zh: "高到低 (起薪)",
+    },
+    {
+      value: "ending_salary_low",
+      label_en: "Low to High (ending salary)",
+      label_zh: "低到高 (最高薪资)",
+    },
+    {
+      value: "ending_salary_high",
+      label_en: "High to Low (ending salary)",
+      label_zh: "高到低 (最高薪资)",
+    },
   ];
 
   // Initialize category from URL on mount
@@ -51,7 +81,7 @@ export default function CoursesPage() {
     }, 500); // Debounce search by 500ms
 
     return () => clearTimeout(timer);
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, searchTerm, sortBy]);
 
   async function fetchCourses() {
     setLoading(true);
@@ -68,7 +98,51 @@ export default function CoursesPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setCourses(data.courses || []);
+        let sortedCourses = data.courses || [];
+
+        // Helper functions for salary extraction
+        const getSalaryStart = (range: string | null) => {
+          if (!range) return 0;
+          const match = range.match(/\$([\d,]+)/);
+          return match ? parseInt(match[1].replace(/,/g, "")) : 0;
+        };
+
+        const getSalaryEnd = (range: string | null) => {
+          if (!range) return 0;
+          const matches = range.match(/\$([\d,]+)/g);
+          if (!matches || matches.length < 2) return getSalaryStart(range);
+          const lastMatch = matches[matches.length - 1];
+          return parseInt(lastMatch.replace(/[\$,]/g, ""));
+        };
+
+        // Apply sorting
+        if (sortBy === "alphabetical") {
+          sortedCourses = [...sortedCourses].sort((a, b) =>
+            a.title_en.localeCompare(b.title_en),
+          );
+        } else if (sortBy === "starting_salary_low") {
+          sortedCourses = [...sortedCourses].sort(
+            (a, b) =>
+              getSalaryStart(a.salary_range) - getSalaryStart(b.salary_range),
+          );
+        } else if (sortBy === "starting_salary_high") {
+          sortedCourses = [...sortedCourses].sort(
+            (a, b) =>
+              getSalaryStart(b.salary_range) - getSalaryStart(a.salary_range),
+          );
+        } else if (sortBy === "ending_salary_low") {
+          sortedCourses = [...sortedCourses].sort(
+            (a, b) =>
+              getSalaryEnd(a.salary_range) - getSalaryEnd(b.salary_range),
+          );
+        } else if (sortBy === "ending_salary_high") {
+          sortedCourses = [...sortedCourses].sort(
+            (a, b) =>
+              getSalaryEnd(b.salary_range) - getSalaryEnd(a.salary_range),
+          );
+        }
+
+        setCourses(sortedCourses);
       } else {
         console.error("Failed to fetch courses:", data.error);
       }
@@ -111,23 +185,44 @@ export default function CoursesPage() {
               />
             </div>
 
-            {/* Category Filters */}
-            <div className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <div className="flex gap-2 flex-wrap">
-                {categories.map((cat) => (
-                  <button
-                    key={cat.value}
-                    onClick={() => setSelectedCategory(cat.value)}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${
-                      selectedCategory === cat.value
-                        ? "bg-primary-600 text-white"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    }`}
-                  >
-                    {language === "en" ? cat.label_en : cat.label_zh}
-                  </button>
-                ))}
+            {/* Category Filters and Sort - Horizontal on desktop, stacked on mobile */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              {/* Category Filters */}
+              <div className="flex items-center gap-2 flex-1">
+                <Filter className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                <div className="flex gap-2 flex-wrap">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.value}
+                      onClick={() => setSelectedCategory(cat.value)}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${
+                        selectedCategory === cat.value
+                          ? "bg-primary-600 text-white"
+                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      }`}
+                    >
+                      {language === "en" ? cat.label_en : cat.label_zh}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  {language === "en" ? "Sort by:" : "排序方式："}
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+                >
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {language === "en" ? option.label_en : option.label_zh}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>

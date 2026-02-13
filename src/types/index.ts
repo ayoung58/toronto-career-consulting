@@ -21,6 +21,7 @@ export interface Course {
   employment_outlook_zh: string | null; // Employment outlook text in Chinese (nullable)
   salary_range: string; // E.g., "$50,000 - $80,000"
   category: string; // E.g., "Technology", "Healthcare", "Business"
+  image_url: string | null; // URL path to course image in Supabase Storage
   is_published: boolean; // Whether to show on public site
   created_at: string; // ISO timestamp
   updated_at: string; // ISO timestamp

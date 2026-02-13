@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Upload, Image as ImageIcon } from "lucide-react";
+import {
+  uploadCourseImage,
+  deleteCourseImage,
+  extractStoragePath,
+} from "@/lib/imageUpload";
 import type { Course } from "@/types";
 
 interface CourseFormProps {
@@ -16,6 +21,12 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
   const isEditing = !!course;
 
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    course?.image_url || null,
+  );
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [deletingImage, setDeletingImage] = useState(false);
   const [formData, setFormData] = useState({
     slug: course?.slug || "",
     title_en: course?.title_en || "",
@@ -76,14 +87,79 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
     }));
   };
 
+  // Image handling functions
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE) {
+      toast.error("Image must be less than 5MB");
+      return;
+    }
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Image must be JPEG, PNG, or WebP");
+      return;
+    }
+
+    setImageFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = async () => {
+    if (imagePreview && course?.image_url) {
+      // If editing and has existing image, delete from storage
+      setDeletingImage(true);
+      const storagePath = extractStoragePath(course.image_url);
+      if (storagePath) {
+        await deleteCourseImage(storagePath);
+      }
+      setDeletingImage(false);
+    }
+
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Upload image first if there's a new one
+      let imageUrl = course?.image_url || null;
+
+      if (imageFile) {
+        setUploadingImage(true);
+        const result = await uploadCourseImage(imageFile, formData.slug);
+        if (result) {
+          imageUrl = result.url;
+
+          // If editing and had old image, delete it
+          if (course?.image_url) {
+            const oldPath = extractStoragePath(course.image_url);
+            if (oldPath) {
+              await deleteCourseImage(oldPath);
+            }
+          }
+        }
+        setUploadingImage(false);
+      }
+
       // Filter out empty strings from arrays
       const cleanData = {
         ...formData,
+        image_url: imageUrl,
         key_learning_en: formData.key_learning_en.filter((item) => item.trim()),
         key_learning_zh:
           formData.key_learning_zh.filter((item) => item.trim()) || null,
@@ -273,6 +349,67 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
+          </div>
+
+          {/* Course Image */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-900">Course Image</h3>
+
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+              {imagePreview ? (
+                // Preview existing or selected image
+                <div className="space-y-4">
+                  <div className="relative aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden">
+                    <img
+                      src={imagePreview}
+                      alt="Course preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <label className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer">
+                      Replace Image
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      disabled={deletingImage}
+                      className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition disabled:opacity-50"
+                    >
+                      {deletingImage ? "Removing..." : "Remove Image"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Upload new image
+                <label className="flex flex-col items-center justify-center cursor-pointer">
+                  <Upload className="h-12 w-12 text-gray-400 mb-3" />
+                  <span className="text-sm font-medium text-gray-700 mb-1">
+                    Click to upload course image
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    PNG, JPG, WebP up to 5MB (16:9 aspect ratio recommended)
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
+            <p className="text-xs text-gray-500">
+              💡 <strong>Tip:</strong> Use AI image generation tools like DALL-E
+              or Midjourney to create professional course images.
+            </p>
           </div>
 
           {/* Key Learning Areas */}
@@ -536,14 +673,16 @@ export function CourseForm({ course, onClose, onSuccess }: CourseFormProps) {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || uploadingImage}
             className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
           >
-            {loading
-              ? "Saving..."
-              : isEditing
-                ? "Update Course"
-                : "Create Course"}
+            {uploadingImage
+              ? "Uploading Image..."
+              : loading
+                ? "Saving..."
+                : isEditing
+                  ? "Update Course"
+                  : "Create Course"}
           </button>
         </div>
       </div>

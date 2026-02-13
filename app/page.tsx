@@ -26,25 +26,29 @@ const categories = [
     icon: Briefcase,
     titleEn: "Business & Administration",
     titleZh: "商业与行政",
-    count: 5,
+    count: 10,
+    slug: "business",
   },
   {
     icon: BookOpen,
     titleEn: "Healthcare",
     titleZh: "医疗保健",
-    count: 4,
+    count: 7,
+    slug: "healthcare",
   },
   {
     icon: GraduationCap,
     titleEn: "Technology",
     titleZh: "技术",
     count: 4,
+    slug: "technology",
   },
   {
     icon: Users,
     titleEn: "Skilled Trades",
     titleZh: "技术工种",
     count: 4,
+    slug: "trades",
   },
 ];
 
@@ -130,24 +134,26 @@ export default function Home() {
                   transition={{ delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
-                    <CardHeader className="text-center">
-                      <div className="mx-auto w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-colors">
-                        <Icon className="h-6 w-6 text-primary-600" />
-                      </div>
-                      <CardTitle>
-                        {language === "en"
-                          ? category.titleEn
-                          : category.titleZh}
-                      </CardTitle>
-                      <CardDescription>
-                        {category.count}{" "}
-                        {language === "en"
-                          ? "programs available"
-                          : "个课程可选"}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
+                  <Link href={`/courses?category=${category.slug}`}>
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
+                      <CardHeader className="text-center">
+                        <div className="mx-auto w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-colors">
+                          <Icon className="h-6 w-6 text-primary-600" />
+                        </div>
+                        <CardTitle>
+                          {language === "en"
+                            ? category.titleEn
+                            : category.titleZh}
+                        </CardTitle>
+                        <CardDescription>
+                          {category.count}{" "}
+                          {language === "en"
+                            ? "programs available"
+                            : "个课程可选"}
+                        </CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </Link>
                 </motion.div>
               );
             })}
