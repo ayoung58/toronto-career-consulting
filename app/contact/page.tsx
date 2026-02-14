@@ -56,10 +56,10 @@ export default function ContactPage() {
                       {language === "en" ? "Phone" : "电话"}
                     </h3>
                     <a
-                      href="tel:+14163030023"
+                      href="tel:+14167092030"
                       className="text-primary-600 hover:text-primary-700 hover:underline text-lg"
                     >
-                      (416) 303-0023
+                      (416) 709-2030
                     </a>
                   </div>
                 </div>

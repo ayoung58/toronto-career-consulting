@@ -29,7 +29,6 @@ const programCategories = [
  */
 export function Footer() {
   const { language } = useLanguage();
-  const currentYear = new Date().getFullYear();
 
   return (
     <footer className="bg-gray-50 border-t border-gray-200">
@@ -101,6 +100,15 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <a
+                  href="tel:+14167092030"
+                  className="flex items-start gap-3 text-sm text-gray-600 hover:text-primary-600 transition-colors"
+                >
+                  <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>416-709-2030</span>
+                </a>
+              </li>
+              <li>
+                <a
                   href="mailto:secondcareerconsulting@gmail.com"
                   className="flex items-start gap-3 text-sm text-gray-600 hover:text-primary-600 transition-colors"
                 >
@@ -122,7 +130,7 @@ export function Footer() {
         <div className="py-6 border-t border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-500">
-              © {currentYear} Toronto Career Consulting.{" "}
+              © 2025 Toronto Career Consulting.{" "}
               {language === "en" ? "All rights reserved." : "版权所有。"}
             </p>
             <div className="flex items-center gap-4">

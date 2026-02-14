@@ -27,6 +27,8 @@ const translations: Record<string, Record<Language, string>> = {
   "button.submit": { en: "Submit", zh: "提交" },
   "button.cancel": { en: "Cancel", zh: "取消" },
   "footer.rights": { en: "All rights reserved", zh: "版权所有" },
+  "salary.entryLevel": { en: "entry-level", zh: "入门级" },
+  "salary.withExperience": { en: "with experience", zh: "有经验" },
 };
 
 // Create the context

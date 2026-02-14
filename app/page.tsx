@@ -336,15 +336,15 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <a href="tel:+14163030023">
+              <a href="tel:+14167092030">
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-2 border-white bg-transparent text-white hover:bg-white/10"
                 >
                   {language === "en"
-                    ? "Call: (416) 303-0023"
-                    : "电话: (416) 303-0023"}
+                    ? "Call: (416) 709-2030"
+                    : "电话: (416) 709-2030"}
                 </Button>
               </a>
             </div>

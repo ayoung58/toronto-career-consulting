@@ -17,7 +17,7 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   // Get bilingual content based on current language
   const title =
@@ -47,6 +47,22 @@ export function CourseCard({ course }: CourseCardProps) {
       finance: { en: "Finance", zh: "金融" },
     };
     return categoryNames[cat]?.[language] || cat;
+  };
+
+  // Helper to translate salary range text
+  const translateSalaryRange = (salaryRange: string) => {
+    if (!salaryRange) return salaryRange;
+
+    let translated = salaryRange;
+    // Replace "entry-level" with translated version
+    translated = translated.replace(/entry-level/gi, t("salary.entryLevel"));
+    // Replace "with experience" with translated version
+    translated = translated.replace(
+      /with experience/gi,
+      t("salary.withExperience"),
+    );
+
+    return translated;
   };
 
   return (
@@ -98,7 +114,9 @@ export function CourseCard({ course }: CourseCardProps) {
         {course.salary_range && (
           <div className="flex items-center gap-2 text-green-600 text-sm mb-5">
             <DollarSign className="w-4 h-4" />
-            <span className="font-semibold">{course.salary_range}</span>
+            <span className="font-semibold">
+              {translateSalaryRange(course.salary_range)}
+            </span>
           </div>
         )}
 
