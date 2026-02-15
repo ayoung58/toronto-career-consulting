@@ -122,7 +122,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
         {/* Career Pathways */}
         {careerPathways && careerPathways.length > 0 && (
-          <div>
+          <div className="mb-6">
             <div className="flex items-center gap-2 text-gray-700 text-sm font-medium mb-2">
               <Briefcase className="w-4 h-4" />
               {language === "en" ? "Career Paths:" : "职业方向："}
@@ -144,6 +144,15 @@ export function CourseCard({ course }: CourseCardProps) {
             </div>
           </div>
         )}
+
+        {/* Learn More Link */}
+        <Link
+          href={`/courses/${course.slug}`}
+          className="mt-auto inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-700 font-medium text-sm hover:gap-2.5 transition-all duration-200 group/link"
+        >
+          {language === "en" ? "Learn More" : "了解更多"}
+          <ArrowRight className="w-4 h-4 group-hover/link:translate-x-0.5 transition-transform" />
+        </Link>
       </div>
     </motion.div>
   );

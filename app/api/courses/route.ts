@@ -9,11 +9,32 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const search = searchParams.get("search");
+    const slug = searchParams.get("slug");
 
     // Create Supabase client
     const supabase = await createClient();
 
-    // Start building query
+    // If slug is provided, fetch single course by slug
+    if (slug) {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("*")
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .single();
+
+      if (error) {
+        console.error("Supabase error:", error);
+        return NextResponse.json(
+          { error: "Course not found" },
+          { status: 404 },
+        );
+      }
+
+      return NextResponse.json([data]); // Return as array for consistency
+    }
+
+    // Start building query for multiple courses
     let query = supabase.from("courses").select("*").eq("is_published", true); // Only published courses
 
     // Apply category filter if provided
