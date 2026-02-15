@@ -39,10 +39,10 @@ export default function ContactPage() {
                       {language === "en" ? "Email" : "电子邮件"}
                     </h3>
                     <a
-                      href="mailto:secondcareerconsulting@gmail.com"
+                      href="mailto:jeanyoungca@163.com"
                       className="text-primary-600 hover:text-primary-700 hover:underline text-lg"
                     >
-                      secondcareerconsulting@gmail.com
+                      jeanyoungca@163.com
                     </a>
                   </div>
                 </div>
