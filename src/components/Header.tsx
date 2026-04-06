@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageToggle } from "./LanguageToggle";
+import { NewsBadge } from "./NewsBadge";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { getUser } from "@/lib/supabase";
 
 interface NavItem {
   href: string;
@@ -16,6 +18,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/", label_en: "Home", label_zh: "首页" },
+  { href: "/news", label_en: "News", label_zh: "新闻" },
   { href: "/courses", label_en: "Programs", label_zh: "课程" },
   { href: "/contact", label_en: "Contact", label_zh: "联系我们" },
 ];
@@ -28,6 +31,25 @@ export function Header() {
   const { language } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminLinkLoaded, setAdminLinkLoaded] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await getUser();
+        setIsAuthenticated(!!user);
+      } catch (error) {
+        console.error("Error checking auth:", error);
+        setIsAuthenticated(false);
+      } finally {
+        setAdminLinkLoaded(true);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   // Track scroll position for header shadow
   useEffect(() => {
@@ -89,6 +111,7 @@ export function Header() {
                 )}
               >
                 {language === "en" ? item.label_en : item.label_zh}
+                {item.href === "/news" && <NewsBadge />}
               </Link>
             ))}
 
@@ -96,12 +119,14 @@ export function Header() {
             <LanguageToggle variant="compact" />
 
             {/* Admin Link (subtle) */}
-            <Link
-              href="/admin-login"
-              className="text-xs text-gray-400 hover:text-gray-600 transition-colors ml-2"
-            >
-              {language === "en" ? "Admin" : "管理"}
-            </Link>
+            {adminLinkLoaded && (
+              <Link
+                href={isAuthenticated ? "/admin/dashboard" : "/admin-login"}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors ml-2"
+              >
+                {language === "en" ? "Admin" : "管理"}
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -147,13 +172,16 @@ export function Header() {
                       href={item.href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        "block px-4 py-3 rounded-lg",
+                        "block px-4 py-3 rounded-lg relative",
                         "text-base font-medium text-gray-700",
                         "hover:bg-primary-50 hover:text-primary-600",
                         "transition-colors duration-200",
                       )}
                     >
                       {language === "en" ? item.label_en : item.label_zh}
+                      {item.href === "/news" && (
+                        <NewsBadge className="right-3" />
+                      )}
                     </Link>
                   </motion.div>
                 ))}
@@ -162,24 +190,34 @@ export function Header() {
                 <div className="my-2 border-t border-gray-100" />
 
                 {/* Admin Link in Mobile */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: navItems.length * 0.05 }}
-                >
-                  <Link
-                    href="/admin-login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "block px-4 py-3 rounded-lg",
-                      "text-sm text-gray-500",
-                      "hover:bg-gray-50 hover:text-gray-700",
-                      "transition-colors duration-200",
-                    )}
+                {adminLinkLoaded && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: navItems.length * 0.05 }}
                   >
-                    {language === "en" ? "Admin Login" : "管理员登录"}
-                  </Link>
-                </motion.div>
+                    <Link
+                      href={
+                        isAuthenticated ? "/admin/dashboard" : "/admin-login"
+                      }
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "block px-4 py-3 rounded-lg",
+                        "text-sm text-gray-500",
+                        "hover:bg-gray-50 hover:text-gray-700",
+                        "transition-colors duration-200",
+                      )}
+                    >
+                      {isAuthenticated
+                        ? language === "en"
+                          ? "Admin Dashboard"
+                          : "管理仪表板"
+                        : language === "en"
+                          ? "Admin Login"
+                          : "管理员登录"}
+                    </Link>
+                  </motion.div>
+                )}
               </div>
             </motion.div>
           )}

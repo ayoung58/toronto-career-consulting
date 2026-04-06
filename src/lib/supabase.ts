@@ -36,6 +36,20 @@ export async function getSession() {
 }
 
 /**
+ * Get the current authenticated user (secure method)
+ * Authenticates the data by contacting the Supabase Auth server
+ * @returns The user object or null if not authenticated
+ */
+export async function getUser() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    // Silently return null - this is expected for unauthenticated users
+    return null;
+  }
+  return data.user;
+}
+
+/**
  * Sign out the current user
  */
 export async function signOut() {

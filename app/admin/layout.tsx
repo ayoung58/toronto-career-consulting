@@ -7,6 +7,7 @@ import {
   Languages,
   LogOut,
   Home,
+  Newspaper,
 } from "lucide-react";
 
 export default async function AdminLayout({
@@ -38,6 +39,7 @@ export default async function AdminLayout({
   const navItems = [
     { href: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/admin/courses", icon: BookOpen, label: "Courses" },
+    { href: "/admin/news", icon: Newspaper, label: "News" },
     { href: "/admin/translations", icon: Languages, label: "Translations" },
   ];
 

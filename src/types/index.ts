@@ -41,6 +41,31 @@ export interface Translation {
   updated_at: string; // ISO timestamp
 }
 
+/**
+ * News item with English/Chinese translations
+ * Matches the Supabase 'news' table schema
+ */
+export interface News {
+  id: string; // UUID from database
+  title_en: string; // English title
+  title_zh: string; // Chinese title
+  content_en: string; // English content
+  content_zh: string; // Chinese content
+  image_url: string | null; // Optional thumbnail image URL
+  links: NewsLink[]; // Array of external links
+  is_published: boolean; // Whether to show on public site
+  created_at: string; // ISO timestamp
+  updated_at: string; // ISO timestamp
+}
+
+/**
+ * External link for a news item
+ */
+export interface NewsLink {
+  title: string; // Link text
+  url: string; // Link URL
+}
+
 // ============================================
 // LANGUAGE & I18N TYPES
 // ============================================
@@ -85,6 +110,20 @@ export interface CourseInput {
   salary_range: string;
   category: string;
   is_published: boolean;
+}
+
+/**
+ * Input data for creating or updating news
+ * Used in admin forms and API routes
+ */
+export interface NewsInput {
+  title_en: string;
+  title_zh: string;
+  content_en: string;
+  content_zh: string;
+  image_url?: string | null;
+  links?: NewsLink[];
+  is_published?: boolean;
 }
 
 /**
