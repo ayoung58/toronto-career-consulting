@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { LogoutButton } from "./LogoutButton";
 import {
   LayoutDashboard,
   BookOpen,
   Languages,
-  LogOut,
   Home,
   Newspaper,
 } from "lucide-react";
@@ -82,16 +82,8 @@ export default async function AdminLayout({
                 View Site
               </Link>
 
-              {/* Logout Form */}
-              <form action="/api/auth/signout" method="POST">
-                <button
-                  type="submit"
-                  className="flex items-center gap-1 text-sm text-red-600 hover:text-red-700 transition"
-                >
-                  <LogOut className="h-4 w-4" />
-                  Logout
-                </button>
-              </form>
+              {/* Logout Button */}
+              <LogoutButton />
             </div>
           </div>
         </div>
