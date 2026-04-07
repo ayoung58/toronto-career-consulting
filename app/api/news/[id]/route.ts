@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 // PUT: Update a news item (admin only)
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   try {
     const supabase = await createClient();
 
@@ -49,7 +50,7 @@ export async function PUT(
         is_published: body.is_published,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.id)
+      .eq("id", id)
       .select();
 
     if (error) throw error;
@@ -77,8 +78,9 @@ export async function PUT(
 // DELETE: Delete a news item (admin only)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   try {
     const supabase = await createClient();
 
@@ -107,7 +109,7 @@ export async function DELETE(
       );
     }
 
-    const { error } = await supabase.from("news").delete().eq("id", params.id);
+    const { error } = await supabase.from("news").delete().eq("id", id);
 
     if (error) throw error;
 
