@@ -35,7 +35,7 @@ Choose your email provider below:
 - **Host**: `smtp.163.com`
 - **Port**: `465`
 - **Use SSL**: ✅ Check this box
-- **User**: `jeanyoungca@163.com` (your full email address)
+- **User**: `secondcareerconsulting@gmail.com` (your full email address)
 - **App Password**: Generate an app-specific password (see instructions below)
 - Keep **"Send test email to verify configuration"** checked
 
@@ -75,7 +75,7 @@ Message:
 Reply-to: {{reply_to}}
 ```
 
-5. In the "Send to" field at the top, enter your email: `jeanyoungca@163.com`
+5. In the "Send to" field at the top, enter your email: `secondcareerconsulting@gmail.com`
 6. Click "Save"
 7. You'll get a **Template ID** (e.g., `template_xxxxx`)
 
@@ -105,7 +105,7 @@ Replace:
 1. Start your development server: `npm run dev`
 2. Go to http://localhost:3000/contact
 3. Fill out the form and click "Send Message"
-4. Check the email address (jeanyoungca@163.com) for the message
+4. Check the email address (secondcareerconsulting@gmail.com) for the message
 
 ## Troubleshooting
 
@@ -128,7 +128,7 @@ Replace:
 
 ## To Change the Recipient Email
 
-The contact form currently sends to `jeanyoungca@163.com`. To change this:
+The contact form currently sends to `secondcareerconsulting@gmail.com`. To change this:
 
 1. Edit the template in EmailJS dashboard
 2. Change the "Send to" email address

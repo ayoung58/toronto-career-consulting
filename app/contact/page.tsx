@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Mail, MapPin, Phone } from "lucide-react";
-import ContactForm from "@/src/components/ContactForm";
+import ContactForm from "@/components/ContactForm";
 
 export default function ContactPage() {
   const { language } = useLanguage();
@@ -33,7 +33,6 @@ export default function ContactPage() {
                 </h2>
 
                 <div className="space-y-8">
-                <div className="space-y-8">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
                       <Mail className="h-6 w-6 text-primary-600" />
@@ -43,10 +42,10 @@ export default function ContactPage() {
                         {language === "en" ? "Email" : "电子邮件"}
                       </h3>
                       <a
-                        href="mailto:jeanyoungca@163.com"
+                        href="mailto:secondcareerconsulting@gmail.com"
                         className="text-primary-600 hover:text-primary-700 hover:underline text-lg"
                       >
-                        jeanyoungca@163.com
+                        secondcareerconsulting@gmail.com
                       </a>
                     </div>
                   </div>
