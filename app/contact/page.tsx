@@ -43,7 +43,7 @@ export default function ContactPage() {
                       </h3>
                       <a
                         href="mailto:secondcareerconsulting@gmail.com"
-                        className="text-primary-600 hover:text-primary-700 hover:underline text-lg"
+                        className="text-primary-600 hover:text-primary-700 hover:underline break-all"
                       >
                         secondcareerconsulting@gmail.com
                       </a>
