@@ -12,7 +12,13 @@ import { Loader } from "lucide-react";
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email"),
-  phone: z.string().min(10, "Please enter a valid phone number"),
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.length >= 10,
+      "Please enter a valid phone number",
+    ),
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
@@ -109,7 +115,7 @@ export default function ContactForm() {
       {/* Phone Field */}
       <div>
         <label className="block text-sm font-medium text-gray-900 mb-2">
-          {language === "en" ? "Phone Number *" : "电话号码 *"}
+          {language === "en" ? "Phone Number (Optional)" : "电话号码（可选）"}
         </label>
         <input
           type="tel"
